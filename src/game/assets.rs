@@ -15,9 +15,13 @@ pub(super) fn plugin(app: &mut App) {
     app.init_resource::<HandleMap<SoundtrackKey>>();
 }
 
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Reflect)]
 pub enum ImageKey {
     Ducky,
+    Bavy,
+    Job,
+    Mockersf,
+    Joshua,
 }
 
 impl AssetKey for ImageKey {
@@ -27,15 +31,53 @@ impl AssetKey for ImageKey {
 impl FromWorld for HandleMap<ImageKey> {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
-        [(
-            ImageKey::Ducky,
-            asset_server.load_with_settings(
-                "images/ducky.png",
-                |settings: &mut ImageLoaderSettings| {
-                    settings.sampler = ImageSampler::nearest();
-                },
+        [
+            (
+                ImageKey::Ducky,
+                asset_server.load_with_settings(
+                    "images/ducky.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
             ),
-        )]
+            (
+                ImageKey::Bavy,
+                asset_server.load_with_settings(
+                    "images/bavy.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Job,
+                asset_server.load_with_settings(
+                    "images/job.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Mockersf,
+                asset_server.load_with_settings(
+                    "images/mockersf.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Joshua,
+                asset_server.load_with_settings(
+                    "images/joshua.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+        ]
         .into()
     }
 }

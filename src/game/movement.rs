@@ -109,13 +109,14 @@ fn compute_is_grounded(
 ) {
     for (entity, global_transform, mut is_grounded) in query.iter_mut() {
         let options = ShapeCastOptions {
-            max_time_of_impact: 2.0,
+            max_time_of_impact: 10.0,
             target_distance: 0.0,
-            stop_at_penetration: false,
+            stop_at_penetration: true,
             compute_impact_geometry_on_penetration: true,
         };
         let filter = QueryFilter {
             exclude_rigid_body: Some(entity),
+            flags: QueryFilterFlags::EXCLUDE_SENSORS,
             ..QueryFilter::default()
         };
 
@@ -123,16 +124,10 @@ fn compute_is_grounded(
             global_transform.translation().xy(),
             Rot::default(),
             -Vec2::Y,
-            &Collider::ball(16f32),
+            &Collider::ball(64f32),
             options,
             filter,
         ) {
-            // The first collider hit has the entity `entity`. The `hit` is a
-            // structure containing details about the hit configuration.
-            println!(
-                "Hit the entity {:?} with the configuration: {:?}",
-                entity, hit
-            );
             is_grounded.0 = true;
         } else {
             is_grounded.0 = false;
@@ -194,7 +189,7 @@ fn apply_movement(
                 jump_delay.0.reset();
                 let dur = coyote_time.0.remaining();
                 coyote_time.0.tick(dur);
-                velocity.linvel.y = 500.0;
+                velocity.linvel.y = 600.0;
                 jump_event.send(JumpEvent(entity));
             }
             if velocity.linvel.y > 0.1f32 {

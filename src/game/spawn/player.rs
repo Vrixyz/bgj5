@@ -51,62 +51,65 @@ fn spawn_player(
     // By attaching it to a [`SpriteBundle`] and providing an index, we can specify which section of the image we want to see.
     // We will use this to animate our player character. You can learn more about texture atlases in this example:
     // https://github.com/bevyengine/bevy/blob/latest/examples/2d/texture_atlas.rs
-    let layout = TextureAtlasLayout::from_grid(UVec2::splat(32), 6, 2, Some(UVec2::splat(1)), None);
+    let layout =
+        TextureAtlasLayout::from_grid(UVec2::splat(130), 6, 2, Some(UVec2::splat(1)), None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = PlayerAnimation::new();
 
-    commands
-        .spawn((
-            Name::new("Player"),
-            Player,
-            SpriteBundle {
-                texture: image_handles[&ImageKey::Ducky].clone_weak(),
-                transform: Transform::from_scale(Vec2::splat(1.0).extend(1.0)),
-                ..Default::default()
-            },
-            TextureAtlas {
-                layout: texture_atlas_layout.clone(),
-                index: player_animation.get_atlas_index(),
-            },
-            MovementController::default(),
-            Movement { speed: 420.0 },
-            WrapWithinWindow {
-                extra_offset: Vec2::new(16f32, 16f32),
-            },
-            player_animation,
-            StateScoped(Screen::Playing),
-            (
-                RigidBody::Dynamic,
-                Velocity::zero(),
-                Collider::ball(16f32),
-                GravityScale(1f32),
-                JumpDelay(Timer::from_seconds(0.25f32, TimerMode::Once)),
-                CoyoteTime(Timer::from_seconds(0.25f32, TimerMode::Once)),
-                CanJump(false),
-                IsGrounded(false),
-                ExternalImpulse::default(),
-            ),
-        ))
-        .with_children(|child_builder| {
-            let text_style = TextStyle {
-                font_size: 20.0,
-                ..default()
-            };
-            child_builder
-                .spawn((
-                    Text2dBundle {
-                        text: Text::from_section("can_jump", text_style.clone())
-                            .with_justify(JustifyText::Center),
-                        ..default()
-                    },
-                    UpdateCanJumpLabel,
-                ))
-                .insert(Transform::from_translation(Vec3::new(
-                    0f32,
-                    16f32 + 10f32,
-                    0f32,
-                )));
-        });
+    commands.spawn((
+        Name::new("Player"),
+        Player,
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Ducky].clone_weak(),
+            transform: Transform::from_scale(Vec2::new(1f32, 1f32).extend(1.0))
+                .with_translation(Vec3::new(0f32, 128f32, 0f32)),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        MovementController::default(),
+        Movement { speed: 420.0 },
+        WrapWithinWindow {
+            extra_offset: Vec2::new(64f32, 64f32),
+        },
+        player_animation,
+        StateScoped(Screen::Playing),
+        (
+            RigidBody::Dynamic,
+            ActiveEvents::COLLISION_EVENTS,
+            Velocity::zero(),
+            Collider::ball(64f32),
+            GravityScale(1f32),
+            JumpDelay(Timer::from_seconds(0.25f32, TimerMode::Once)),
+            CoyoteTime(Timer::from_seconds(0.25f32, TimerMode::Once)),
+            CanJump(false),
+            IsGrounded(false),
+            ExternalImpulse::default(),
+        ),
+    ));
+    /*
+    .with_children(|child_builder| {
+        let text_style = TextStyle {
+            font_size: 20.0,
+            ..default()
+        };
+        child_builder
+            .spawn((
+                Text2dBundle {
+                    text: Text::from_section("can_jump", text_style.clone())
+                        .with_justify(JustifyText::Center),
+                    ..default()
+                },
+                UpdateCanJumpLabel,
+            ))
+            .insert(Transform::from_translation(Vec3::new(
+                0f32,
+                16f32 + 10f32,
+                0f32,
+            )));
+    });*/
 }
 
 fn update_can_jump_label(
@@ -130,8 +133,10 @@ fn follow_camera(
 ) {
     let mut camera = q_camera.single_mut();
     if let Ok(player) = q_player.get_single() {
+        let mut target = player.translation;
+        target.y = 256.0;
         camera.translation = camera
             .translation
-            .lerp(player.translation, time.delta_seconds() * 10f32);
+            .lerp(target, time.delta_seconds() * 10f32);
     }
 }
