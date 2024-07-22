@@ -3,9 +3,7 @@
 //! If you want to move the player in a smoother way,
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/latest/examples/movement/physics_in_fixed_timestep.rs).
 
-use std::time::Duration;
-
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::AppSet;
@@ -25,7 +23,7 @@ pub(super) fn plugin(app: &mut App) {
     );
     app.add_event::<JumpEvent>();
     // Apply movement based on controls.
-    app.register_type::<(Movement, WrapWithinWindow)>();
+    app.register_type::<Movement>();
     app.add_systems(
         Update,
         (
@@ -120,7 +118,7 @@ fn compute_is_grounded(
             ..QueryFilter::default()
         };
 
-        if let Some((entity, hit)) = rapier_context.cast_shape(
+        if let Some((_entity, _hit)) = rapier_context.cast_shape(
             global_transform.translation().xy(),
             Rot::default(),
             -Vec2::Y,
@@ -200,26 +198,5 @@ fn apply_movement(
         } else if controller.0.y < 0.01f32 {
             gravity.0 = 1.5f32;
         }
-    }
-}
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct WrapWithinWindow {
-    pub extra_offset: Vec2,
-}
-
-fn wrap_within_window(
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    mut wrap_query: Query<(&mut Transform, &WrapWithinWindow)>,
-) {
-    let size = window_query.single().size();
-    let half_size = size / 2.0;
-    for (mut transform, wrap) in &mut wrap_query {
-        let position = transform.translation.xy();
-        let half_size = half_size + wrap.extra_offset;
-        let wrapped =
-            (position + half_size).rem_euclid(size + wrap.extra_offset * 2f32) - half_size;
-        transform.translation = wrapped.extend(transform.translation.z);
     }
 }

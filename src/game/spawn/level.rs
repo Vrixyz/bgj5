@@ -1,10 +1,6 @@
 //! Spawn the main level by triggering other observers.
 
 use bevy::prelude::*;
-use bevy_eventlistener::{
-    callbacks::{Listener, ListenerMut},
-    event_listener::On,
-};
 use bevy_rapier2d::geometry::{Collider, Sensor};
 
 use crate::game::{
@@ -57,22 +53,20 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
         ..default()
     };
 
-    ///
-    /// bevy introduction
-    ///
+    //
+    // bevy introduction
+    //
     let position = 700f32;
     commands.trigger(SpawnPlayer);
     commands.trigger(SpawnNpc {
         image_key: ImageKey::Mockersf,
         position: Vec2::new(position, 64.0 + 32.0),
         despawn_id: Some("Bevy fans".to_string()),
-        ..default()
     });
     commands.trigger(SpawnNpc {
         image_key: ImageKey::Joshua,
         position: Vec2::new(position + 120.0, 64.0 + 32.0),
         despawn_id: Some("Bevy fans".to_string()),
-        ..default()
     });
     commands.spawn((
         Name::new("Trigger fans"),
@@ -105,15 +99,14 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
         },
     ));
 
-    ///
-    /// Job
-    ///
+    //
+    // Job
+    //
     let position = 1400f32;
     commands.trigger(SpawnNpc {
         image_key: ImageKey::Job,
         position: Vec2::new(position, 64.0 + 32.0),
         despawn_id: Some("Bevy job".to_string()),
-        ..default()
     });
     commands.spawn((
         DespawnId("Bevy job".to_string()),
@@ -143,15 +136,14 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
         DespawnId("Bevy job".to_string()),
     ));
 
-    ///
-    /// bevy dev
-    ///
+    //
+    // bevy dev
+    //
     let position = 2300f32;
     commands.trigger(SpawnNpc {
         image_key: ImageKey::Joshua,
         position: Vec2::new(position, 64.0 + 32.0),
         despawn_id: Some("Bevy dev".to_string()),
-        ..default()
     });
     commands.spawn((
         DespawnId("Bevy dev".to_string()),

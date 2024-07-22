@@ -1,11 +1,7 @@
 //! Handles rapier triggers and reactions
 
-use bevy::{prelude::*, transform::commands};
-use bevy_eventlistener::{event_listener::EntityEvent, EventListenerPlugin};
-use bevy_eventlistener_derive::EntityEvent;
+use bevy::prelude::*;
 use bevy_rapier2d::pipeline::CollisionEvent;
-
-use super::assets::ImageKey;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Update, trigger_react);
@@ -27,7 +23,7 @@ pub fn trigger_react(
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
-            CollisionEvent::Started(e1, e2, flags) => {
+            CollisionEvent::Started(e1, e2, _flags) => {
                 if let Ok(_on_trigger) = q_on_trigger.get(*e1) {
                     dbg!("sending for e1");
                     commands.trigger(OnTriggerEvent {

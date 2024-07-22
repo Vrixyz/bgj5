@@ -1,19 +1,15 @@
 //! Spawn the player.
 
-use bevy::{color::palettes, prelude::*};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        movement::{
-            CanJump, CoyoteTime, IsGrounded, JumpDelay, Movement, MovementController,
-            WrapWithinWindow,
-        },
+        movement::{CanJump, CoyoteTime, IsGrounded, JumpDelay, Movement, MovementController},
     },
     screen::Screen,
-    ui::palette,
     MainCamera,
 };
 
@@ -71,9 +67,6 @@ fn spawn_player(
         },
         MovementController::default(),
         Movement { speed: 420.0 },
-        WrapWithinWindow {
-            extra_offset: Vec2::new(64f32, 64f32),
-        },
         player_animation,
         StateScoped(Screen::Playing),
         (
