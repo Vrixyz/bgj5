@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number in the format `v1.2.3`'
+        description: "Version number in the format `v1.2.3`"
         required: true
         type: string
 
@@ -22,7 +22,7 @@ env:
   PACKAGE_NAME: bgj5
   # The itch.io page to upload to, in the format: `user-name/project-name`.
   # Comment this out to disable.
-  ITCH_TARGET: vrixyz/bgj5
+  ITCH_TARGET: vrixyz/bevy-meta
   # The organization or author that owns the rights to the game.
   OWNER: vrixyz
   # The path to the assets directory.
@@ -220,7 +220,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Do nothing
-        run: 'true'
+        run: "true"
     outputs:
       itch-target: ${{ env.ITCH_TARGET }}
 
