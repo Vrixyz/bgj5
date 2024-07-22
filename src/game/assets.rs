@@ -15,8 +15,9 @@ pub(super) fn plugin(app: &mut App) {
     app.init_resource::<HandleMap<SoundtrackKey>>();
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Reflect)]
+#[derive(Copy, Clone, Default, Debug, Eq, PartialEq, Hash, Reflect)]
 pub enum ImageKey {
+    #[default]
     Ducky,
     Bavy,
     Job,

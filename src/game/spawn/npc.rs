@@ -1,7 +1,6 @@
 //! Spawn the player.
 
-use bevy::{color::palettes, prelude::*};
-use bevy_rapier2d::prelude::*;
+use bevy::prelude::*;
 
 use crate::{
     game::{
@@ -9,20 +8,23 @@ use crate::{
         assets::{HandleMap, ImageKey},
     },
     screen::Screen,
-    ui::palette,
-    MainCamera,
 };
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_npc);
     app.register_type::<SpawnNpc>();
+    app.register_type::<DespawnId>();
 }
 
-#[derive(Event, Debug, Reflect)]
+#[derive(Event, Debug, Default, Reflect)]
 pub struct SpawnNpc {
     pub image_key: ImageKey,
     pub position: Vec2,
+    pub despawn_id: Option<String>,
 }
+
+#[derive(Component, Debug, Reflect)]
+pub struct DespawnId(pub String);
 
 fn spawn_npc(
     _trigger: Trigger<SpawnNpc>,
@@ -39,7 +41,7 @@ fn spawn_npc(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = PlayerAnimation::new();
 
-    commands.spawn((
+    let mut new = commands.spawn((
         Name::new("NPC"),
         SpriteBundle {
             texture: image_handles[&_trigger.event().image_key].clone_weak(),
@@ -57,4 +59,7 @@ fn spawn_npc(
         player_animation,
         StateScoped(Screen::Playing),
     ));
+    if let Some(id) = &_trigger.event().despawn_id {
+        new.insert(DespawnId(id.to_string()));
+    }
 }
