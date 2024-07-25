@@ -128,7 +128,7 @@ fn follow_camera(
     let mut camera = q_camera.single_mut();
     if let Ok(player) = q_player.get_single() {
         let mut target = player.translation;
-        target.y = 256.0;
+        target.y = 150.0;
         camera.translation = camera
             .translation
             .lerp(target, time.delta_seconds() * 10f32);
