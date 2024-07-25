@@ -71,6 +71,7 @@ fn spawn_player(
         StateScoped(Screen::Playing),
         (
             RigidBody::Dynamic,
+            LockedAxes::ROTATION_LOCKED,
             ActiveEvents::COLLISION_EVENTS,
             Velocity::zero(),
             Collider::ball(64f32),

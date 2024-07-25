@@ -3,9 +3,12 @@
 use bevy::prelude::*;
 use bevy_rapier2d::geometry::{Collider, Sensor};
 
-use crate::game::{
-    assets::{HandleMap, ImageKey},
-    trigger::{OnTrigger, OnTriggerEvent},
+use crate::{
+    game::{
+        assets::{HandleMap, ImageKey},
+        trigger::{OnTrigger, OnTriggerEvent},
+    },
+    screen::Screen,
 };
 
 use super::{
@@ -17,10 +20,14 @@ pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_level);
     app.observe(change_skin);
     app.observe(trigger_react_despawn);
+    app.observe(trigger_game_over);
 }
 
 #[derive(Event, Debug)]
 pub struct SpawnLevel;
+
+#[derive(Component, Debug)]
+pub struct TriggerGameOver;
 
 #[derive(Component, Debug)]
 pub struct SkinToApply {
@@ -36,7 +43,7 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
     // but add things like walls etc. here.
     let ground_size = 1000.0;
     let ground_height = 50.0;
-
+    let mut position = 0.0;
     for i in 0..100 {
         commands.spawn((
             TransformBundle::from(Transform::from_xyz(
@@ -53,20 +60,32 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
         ..default()
     };
 
+    commands.spawn((Text2dBundle {
+        text: Text::from_section("use arrow keys ->", text_style.clone())
+            .with_justify(JustifyText::Center),
+        transform: Transform::from_translation(Vec3::new(
+            position - 120.0,
+            64.0 + 128.0 + 32.0 + 40.0,
+            0.0,
+        )),
+        ..default()
+    },));
+
     //
     // bevy introduction
     //
-    let position = 700f32;
+    position += 700.0;
+    let despawn_id = "bevy fans".to_string();
     commands.trigger(SpawnPlayer);
     commands.trigger(SpawnNpc {
         image_key: ImageKey::Mockersf,
         position: Vec2::new(position, 64.0 + 32.0),
-        despawn_id: Some("Bevy fans".to_string()),
+        despawn_id: Some(despawn_id.clone()),
     });
     commands.trigger(SpawnNpc {
         image_key: ImageKey::Joshua,
         position: Vec2::new(position + 120.0, 64.0 + 32.0),
-        despawn_id: Some("Bevy fans".to_string()),
+        despawn_id: Some(despawn_id.clone()),
     });
     commands.spawn((
         Name::new("Trigger fans"),
@@ -79,49 +98,110 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
             ..default()
         },
         OnTrigger,
-        Despawner("Bevy fans".to_string()),
+        Despawner(despawn_id.clone()),
         SkinToApply {
             key: ImageKey::Bavy,
         },
-        DespawnId("Bevy fans".to_string()),
+        DespawnId(despawn_id.clone()),
     ));
-    commands.spawn((
-        DespawnId("Bevy fans".to_string()),
-        Text2dBundle {
-            text: Text::from_section("Have you heard of Bevy ?", text_style.clone())
-                .with_justify(JustifyText::Center),
+    commands.spawn((Text2dBundle {
+        text: Text::from_section("Have you heard of Bevy ?", text_style.clone())
+            .with_justify(JustifyText::Center),
+        transform: Transform::from_translation(Vec3::new(position, 64.0 + 128.0 + 32.0, 0.0)),
+        ..default()
+    },));
+
+    for i in 0..3 {
+        //
+        // Job
+        //
+
+        let despawn_id = format!("bevy job {}", i);
+        position += 1300.0 + 400.0 * i as f32;
+        commands.trigger(SpawnNpc {
+            image_key: ImageKey::Job,
+            position: Vec2::new(position, 64.0 + 32.0),
+            despawn_id: Some(despawn_id.clone()),
+        });
+        commands.spawn((Text2dBundle {
+            text: Text::from_section(
+                [
+                    "Hey you look capable! What about getting a job?",
+                    "Wow your contributions are great! Let's make business together!",
+                    "Please help our company scale with Bevy!",
+                ][i.min(2)],
+                text_style.clone(),
+            )
+            .with_justify(JustifyText::Center),
             transform: Transform::from_translation(Vec3::new(
-                position + 120.0,
+                position - 100.0,
                 64.0 + 128.0 + 32.0,
                 0.0,
             )),
             ..default()
-        },
-    ));
+        },));
+        commands.spawn((
+            Name::new(despawn_id.clone()),
+            Collider::ball(320.0),
+            Sensor,
+            SpatialBundle {
+                transform: Transform::from_translation(
+                    Vec2::new(position + 300.0, 64.0 + 32.0).extend(0f32),
+                ),
+                ..default()
+            },
+            OnTrigger,
+            Despawner(despawn_id.clone()),
+            SkinToApply { key: ImageKey::Job },
+            DespawnId(despawn_id.clone()),
+        ));
 
-    //
-    // Job
-    //
-    let position = 1400f32;
-    commands.trigger(SpawnNpc {
-        image_key: ImageKey::Job,
-        position: Vec2::new(position, 64.0 + 32.0),
-        despawn_id: Some("Bevy job".to_string()),
-    });
-    commands.spawn((
-        DespawnId("Bevy job".to_string()),
-        Text2dBundle {
+        //
+        // bevy dev
+        //
+        let despawn_id = format!("bevy dev {}", i);
+        position += 1400.0 + 600.0 * i as f32;
+        commands.trigger(SpawnNpc {
+            image_key: ImageKey::Dev,
+            position: Vec2::new(position, 64.0 + 32.0),
+            despawn_id: Some(despawn_id.clone()),
+        });
+        commands.spawn((Text2dBundle {
             text: Text::from_section(
-                "Hey you look capable! What about getting a job?",
+                [
+                    "A bevy user is a bevy developer who doesn't know it yet.",
+                    "There's so many areas to bevy, let's make it even better!",
+                    "SME is for Subject Matter Experts, working with them is great!",
+                ][i.min(2)],
                 text_style.clone(),
             )
             .with_justify(JustifyText::Center),
-            transform: Transform::from_translation(Vec3::new(position, 64.0 + 128.0 + 32.0, 0.0)),
+            transform: Transform::from_translation(Vec3::new(
+                position - 120.0,
+                64.0 + 128.0 + 32.0,
+                0.0,
+            )),
             ..default()
-        },
-    ));
+        },));
+        commands.spawn((
+            Name::new(despawn_id.clone()),
+            Collider::ball(320.0),
+            Sensor,
+            SpatialBundle {
+                transform: Transform::from_translation(
+                    Vec2::new(position + 300.0, 64.0 + 32.0).extend(0f32),
+                ),
+                ..default()
+            },
+            OnTrigger,
+            Despawner(despawn_id.clone()),
+            SkinToApply { key: ImageKey::Dev },
+            DespawnId(despawn_id.clone()),
+        ));
+    }
+    position += 2000.0;
     commands.spawn((
-        Name::new("Trigger job"),
+        Name::new("Trigger super"),
         Collider::ball(320.0),
         Sensor,
         SpatialBundle {
@@ -131,47 +211,84 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
             ..default()
         },
         OnTrigger,
-        Despawner("Bevy job".to_string()),
-        SkinToApply { key: ImageKey::Job },
-        DespawnId("Bevy job".to_string()),
-    ));
-
-    //
-    // bevy dev
-    //
-    let position = 2300f32;
-    commands.trigger(SpawnNpc {
-        image_key: ImageKey::Joshua,
-        position: Vec2::new(position, 64.0 + 32.0),
-        despawn_id: Some("Bevy dev".to_string()),
-    });
-    commands.spawn((
-        DespawnId("Bevy dev".to_string()),
-        Text2dBundle {
-            text: Text::from_section(
-                "A bevy user is a bevy developer who doesn't know it yet.",
-                text_style.clone(),
-            )
-            .with_justify(JustifyText::Center),
-            transform: Transform::from_translation(Vec3::new(position, 64.0 + 128.0 + 32.0, 0.0)),
-            ..default()
+        Despawner("superbevy".to_string()),
+        SkinToApply {
+            key: ImageKey::SuperBevy,
         },
+        DespawnId("superbevy".to_string()),
     ));
+    commands.spawn((Text2dBundle {
+        text: Text::from_section("Yeah that was the bevy cyle", text_style.clone())
+            .with_justify(JustifyText::Center),
+        transform: Transform::from_translation(Vec3::new(
+            position - 120.0,
+            64.0 + 128.0 + 32.0,
+            0.0,
+        )),
+        ..default()
+    },));
+
+    position += 2300.0;
+    commands.spawn((Text2dBundle {
+        text: Text::from_section("Thanks for 'playing'", text_style.clone())
+            .with_justify(JustifyText::Center),
+        transform: Transform::from_translation(Vec3::new(
+            position - 120.0,
+            64.0 + 128.0 + 32.0,
+            0.0,
+        )),
+        ..default()
+    },));
+    position += 2600.0;
+    commands.spawn((Text2dBundle {
+        text: Text::from_section("When is editor ?", text_style.clone())
+            .with_justify(JustifyText::Center),
+        transform: Transform::from_translation(Vec3::new(
+            position - 120.0,
+            64.0 + 128.0 + 32.0,
+            0.0,
+        )),
+        ..default()
+    },));
+    position += 3000.0;
+    commands.spawn((Text2dBundle {
+        text: Text::from_section("Stop now it's over!", text_style.clone())
+            .with_justify(JustifyText::Center),
+        transform: Transform::from_translation(Vec3::new(
+            position - 120.0,
+            64.0 + 128.0 + 32.0,
+            0.0,
+        )),
+        ..default()
+    },));
+
+    position += 3500.0;
     commands.spawn((
-        Name::new("Trigger dev"),
+        Name::new("Trigger gameover"),
         Collider::ball(320.0),
         Sensor,
         SpatialBundle {
             transform: Transform::from_translation(
-                Vec2::new(position + 300.0, 64.0 + 32.0).extend(0f32),
+                Vec2::new(position + 800.0, 64.0 + 32.0).extend(0f32),
             ),
             ..default()
         },
         OnTrigger,
-        Despawner("Bevy dev".to_string()),
-        SkinToApply { key: ImageKey::Job },
-        DespawnId("Bevy dev".to_string()),
+        TriggerGameOver,
     ));
+    commands.spawn((Text2dBundle {
+        text: Text::from_section(
+            "Hire me next year? Comment 'I hire you'!",
+            text_style.clone(),
+        )
+        .with_justify(JustifyText::Center),
+        transform: Transform::from_translation(Vec3::new(
+            position - 120.0,
+            64.0 + 128.0 + 32.0,
+            0.0,
+        )),
+        ..default()
+    },));
 }
 
 pub fn change_skin(
@@ -187,6 +304,7 @@ pub fn change_skin(
             .insert(image_handles[&to_apply.key].clone_weak());
     }
 }
+
 pub fn trigger_react_despawn(
     trigger: Trigger<OnTriggerEvent>,
     q: Query<&Despawner>,
@@ -200,5 +318,16 @@ pub fn trigger_react_despawn(
                 commands.entity(e).despawn();
             }
         }
+    }
+}
+
+pub fn trigger_game_over(
+    trigger: Trigger<OnTriggerEvent>,
+    q: Query<&TriggerGameOver>,
+    mut next_gamestate: ResMut<NextState<Screen>>,
+) {
+    dbg!("change_skin");
+    if let Ok(to_apply) = q.get(trigger.event().trigger) {
+        next_gamestate.set(Screen::Loading);
     }
 }

@@ -23,6 +23,8 @@ pub enum ImageKey {
     Job,
     Mockersf,
     Joshua,
+    Dev,
+    SuperBevy,
 }
 
 impl AssetKey for ImageKey {
@@ -73,6 +75,24 @@ impl FromWorld for HandleMap<ImageKey> {
                 ImageKey::Joshua,
                 asset_server.load_with_settings(
                     "images/joshua.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Dev,
+                asset_server.load_with_settings(
+                    "images/dev.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::SuperBevy,
+                asset_server.load_with_settings(
+                    "images/superbevy.png",
                     |settings: &mut ImageLoaderSettings| {
                         settings.sampler = ImageSampler::nearest();
                     },

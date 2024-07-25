@@ -76,7 +76,7 @@ fn record_movement_controller(
         intent.y -= 1.0;
     }
     if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
-        intent.x -= 1.0;
+        //intent.x -= 1.0;
     }
     if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
         intent.x += 1.0;
@@ -84,7 +84,7 @@ fn record_movement_controller(
 
     // Apply movement intent to controllers.
     for mut controller in &mut controller_query {
-        controller.0 = intent;
+        controller.0 = intent * 10.0;
     }
 }
 
