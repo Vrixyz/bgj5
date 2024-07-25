@@ -84,7 +84,7 @@ fn record_movement_controller(
 
     // Apply movement intent to controllers.
     for mut controller in &mut controller_query {
-        controller.0 = intent * 10.0;
+        controller.0 = intent;
     }
 }
 
