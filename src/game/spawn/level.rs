@@ -327,7 +327,7 @@ pub fn trigger_game_over(
     mut next_gamestate: ResMut<NextState<Screen>>,
 ) {
     dbg!("change_skin");
-    if let Ok(to_apply) = q.get(trigger.event().trigger) {
+    if let Ok(_to_apply) = q.get(trigger.event().trigger) {
         next_gamestate.set(Screen::Loading);
     }
 }
